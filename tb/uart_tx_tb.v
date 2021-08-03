@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module uart_tb;
+module uart_tx_tb;
 
     reg          clk_i;
     reg          nreset_i;
@@ -21,8 +21,8 @@ module uart_tb;
 
             .tx_data_i(tx_data_i),
                         
-            .ready(ready),
-            .valid(valid),
+            .ready_i(ready),
+            .valid_o(valid),
             .tx_o(tx_o)
     );
     

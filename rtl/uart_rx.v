@@ -65,13 +65,13 @@ end
 
 reg          is_second_tic_reg;
 
-assign is_second_tic = cnt_tic && is_second_tic_reg;
+assign is_second_tic = cnt_tic && is_second_tic_reg ;
 
 always @( posedge clk_i ) begin
-  if ( !nreset_i )
+  if ( !nreset_i || !start_bit )
     is_second_tic_reg <= 1'b0;
   else begin
-    if ( ( cnt_tic ) && is_second_tic_reg )  
+    if ( cnt_tic && is_second_tic_reg )  
         is_second_tic_reg <= 1'b0;
     else if ( cnt_tic )
         is_second_tic_reg <= 1'b1;

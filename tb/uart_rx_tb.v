@@ -36,6 +36,8 @@ module uart_rx_tb;
 
 reg  [7:0]  data;
 
+integer   CLKS_PER_BIT    = 100_000_000_0 / 9600;
+ 
  initial begin 
 
   nreset_i = 'b0;
@@ -55,33 +57,57 @@ reg  [7:0]  data;
 
       //start bit
   rx_i = 1'b0;
-  #100_000;
+  #CLKS_PER_BIT;
       //data
   rx_i = data[0];
-  #100_000;
+  #CLKS_PER_BIT;
   rx_i = data[1];
-  #100_000;
+  #CLKS_PER_BIT;
   rx_i = data[2];
-  #100_000;
+  #CLKS_PER_BIT;
   rx_i = data[3];
-  #100_000;
+  #CLKS_PER_BIT;
   rx_i = data[4];
-  #100_000;
+  #CLKS_PER_BIT;
   rx_i = data[5];
-  #100_000;
+  #CLKS_PER_BIT;
   rx_i = data[6];
-  #100_000;
+  #CLKS_PER_BIT;
   rx_i = data[7];
-  #100_000;
-  
+  #CLKS_PER_BIT;
+  // stop bit
   rx_i = 1'b1;
-  #100_000;
+  #CLKS_PER_BIT;
+  
+  
+    data = 8'b1001_0101;
+   // start bit
+  rx_i = 1'b0;
+  #CLKS_PER_BIT;
+    valid = 1'b0;
+      //data
+  rx_i = data[0];
+  #CLKS_PER_BIT;
+  rx_i = data[1];
+  #CLKS_PER_BIT;
+  rx_i = data[2];
+  #CLKS_PER_BIT;
+  rx_i = data[3];
+  #CLKS_PER_BIT;
+  rx_i = data[4];
+  #CLKS_PER_BIT;
+  rx_i = data[5];
+  #CLKS_PER_BIT;
+  rx_i = data[6];
+  #CLKS_PER_BIT;
+  rx_i = data[7];
+  #CLKS_PER_BIT;
+  rx_i = 1'b1;
+  #CLKS_PER_BIT;
+  
 
-  valid = 'b1;
-  #10000;
-  valid = 'b0;
-  #10000;
-
+  
  end 
+ 
 
 endmodule

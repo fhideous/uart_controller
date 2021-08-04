@@ -5,7 +5,7 @@ module uart_allocation(
 
   input       rx_i,
   output      tx_o
-  );
+);
 
 localparam  BIT_RATE        = 9600;
 localparam  CLK_HZ          = 100_000_000;
@@ -24,12 +24,14 @@ wire            valid;
 reg   [7:0]     cnt;
 reg   [7:0]     cnt_static;
 
+wire  [7:0]     data_rx;
+
 uart_tx inst_uart_tx
 (
   .clk_i        (clk        ),
   .nreset_i     (reset      ),
 
-  .tx_data_i    (cnt ),
+  .tx_data_i    (data_rx    ),
   .ready_i      (ready      ),
   .valid_o      (valid      ),
   .tx_o         (tx_o       )
@@ -45,18 +47,13 @@ always @( posedge clk ) begin
 if ( ( clk_counter == CLKS_PER_10_BIT ) )
       clk_counter <= 1'b0; 
     else 
-      clk_counter <= clk_counter + 1'b1;
- 
-   
+      clk_counter <= clk_counter + 1'b1;   
     end  
 end
 
 assign        cnt_tic = ( clk_counter == CLKS_PER_10_BIT  - 1);
 
 
-
-assign ready = 1'b1;
-/*reg [7:0] data_rx ;
 
  uart_rx inst_uart_rx
  (
@@ -69,7 +66,7 @@ assign ready = 1'b1;
    .data_o       (data_rx    )
 
  );
-*/
+
 
 always @( posedge clk ) begin
     if (!reset)

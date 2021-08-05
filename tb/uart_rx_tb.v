@@ -51,7 +51,7 @@ integer   CLKS_PER_BIT    = 100_000_000_0 / 9600;
   #500000;
 
   valid = 'b1;
-  data = 8'b1001_0101;
+  data = 8'b1001_0100;
       rx_i = 1'b1;
       #2000;
 
@@ -80,7 +80,7 @@ integer   CLKS_PER_BIT    = 100_000_000_0 / 9600;
   #CLKS_PER_BIT;
   
   
-    data = 8'b1001_0101;
+    data = 8'b0001_0010;
    // start bit
   rx_i = 1'b0;
   #CLKS_PER_BIT;

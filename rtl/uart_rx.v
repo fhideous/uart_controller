@@ -1,4 +1,3 @@
-
 module uart_rx(
 
   input             clk_i,
@@ -13,91 +12,146 @@ module uart_rx(
   
 );
 
-localparam  BIT_RATE        = 9600;
-localparam  CLK_HZ          = 100_000_000;
+localparam    BIT_RATE        = 9600;
+localparam    CLK_HZ          = 100_000_000;
 
-localparam  CLKS_PER_BIT    = CLK_HZ / BIT_RATE;
-localparam  COUNTER_LEN     = 1 + $clog2(CLKS_PER_BIT / 2);
+localparam    CLKS_PER_BIT    = CLK_HZ / BIT_RATE;
+localparam    COUNTER_LEN     = 1 + $clog2(CLKS_PER_BIT / 2);
 
-reg  [COUNTER_LEN - 1:0]  clk_counter;
-wire                      cnt_tic;
-reg                       is_transmitting;
+reg   [COUNTER_LEN - 1:0]    clk_counter;
 
-reg                       start_bit;
-reg   [3:0]               bit_cnt;
+wire                         is_bod_tic;
+wire                         is_second_tic;
+reg                          second_bod_tic;
 
-assign    ready_o   =   ( nreset_i ) && ( !is_transmitting ) ;
+reg   [3:0]                  bit_cnt;
 
-always @( posedge clk_i ) begin 
-  if ( !nreset_i ) begin
-      is_transmitting    <=  1'b0;
-  end else begin 
-    if ( valid_i && ready_o ) 
-        is_transmitting    <= 'b1;
-    else if ( bit_cnt == 'd9 && cnt_tic  )
-        is_transmitting    <= 'b0;
-  end 
-end
+reg   [1:0]                  state;  
+reg   [1:0]                  next_state;
+
+localparam    IDLE_S              = 2'b00;
+localparam    SEARCH_START_BIT_S  = 2'b01;  
+localparam    RECIVE_DATA         = 2'b10;
+localparam    WAIT_STOP_BIT       = 2'b11;
 
 always @( posedge clk_i ) begin 
   if ( !nreset_i )
     clk_counter   <= 'b0;
-  else if ( is_transmitting ) begin
-    if ( ( clk_counter == CLKS_PER_BIT / 2) )
-      clk_counter <= 1'b0; 
-    else 
-      clk_counter <= clk_counter + 1'b1;
-  end 
-end  
-
-assign        cnt_tic = ( clk_counter == ( CLKS_PER_BIT / 2 ) - 1) || ( valid_i && ready_o );
-
-wire          is_second_tic;
-
-always @( posedge clk_i ) begin
-  if ( ( !nreset_i ) || ( ready_o && valid_i ) )
-    bit_cnt    <= 4'b0;
   else begin 
-    if ( is_second_tic && cnt_tic && start_bit)     
-      bit_cnt  <= bit_cnt + 1'b1; 
-   end
-end
-
-reg          is_second_tic_reg;
-
-assign is_second_tic = cnt_tic && is_second_tic_reg ;
-
-always @( posedge clk_i ) begin
-  if ( !nreset_i || !start_bit )
-    is_second_tic_reg <= 1'b0;
-  else begin
-    if ( cnt_tic && is_second_tic_reg )  
-        is_second_tic_reg <= 1'b0;
-    else if ( cnt_tic )
-        is_second_tic_reg <= 1'b1;
-  end
-end
- 
-
-always @( posedge clk_i ) begin
-  if ( !nreset_i )
-    data_o <= 8'b1111_1111;
-  else begin
-    if ( is_transmitting && is_second_tic ) begin
-      data_o[bit_cnt] = rx_i;
+    if ( state != IDLE_S ) begin
+      if ( (clk_counter == ( CLKS_PER_BIT ) / 2 ) && state != WAIT_STOP_BIT )
+        clk_counter <= 1'b0;
+      else if ( ( clk_counter == CLKS_PER_BIT ) )
+        clk_counter <= 1'b0; 
+      else 
+        clk_counter <= clk_counter + 1'b1;
     end 
   end
-end
+end  
+
+assign is_bod_tic = ( clk_counter ==  ( CLKS_PER_BIT - 1 ) && ( state == WAIT_STOP_BIT ) )
+            || ( ( clk_counter ==  ( CLKS_PER_BIT - 1 ) / 2 ) && ( ( state == SEARCH_START_BIT_S ) 
+                                                                || ( state == RECIVE_DATA ) ) ) ;
 
 always @( posedge clk_i ) begin
   if ( !nreset_i )
-    start_bit <= 1'b0;
+    second_bod_tic     <= 1'b1;
   else begin
-    if (is_transmitting && cnt_tic && !rx_i)
-      start_bit <= 1'b1;
-    else if ( bit_cnt == 'd9 ) 
-      start_bit <= 1'b0; 
+    if ( is_bod_tic ) begin 
+      if ( !second_bod_tic )
+        second_bod_tic <= 1'b1;
+      else 
+        second_bod_tic <= 1'b0;
+    end
   end
 end
 
+assign is_second_tic = second_bod_tic && is_bod_tic;
+
+always @ ( posedge clk_i ) begin
+  if ( !nreset_i )
+    bit_cnt <= 1'b0;
+  else begin 
+    if ( state != RECIVE_DATA )
+      bit_cnt <= 1'b0;
+    else if ( ( bit_cnt == 'd7 )  && ( is_second_tic ) )
+      bit_cnt <= 1'b0;
+    else if ( is_second_tic )
+      bit_cnt <= bit_cnt + 1'b1; 
+  end
+end
+
+always @ ( posedge clk_i ) begin
+  if ( !nreset_i )
+    data_o <= 8'b1111_1111;
+  else begin 
+    if ( ( state == RECIVE_DATA )  && ( is_second_tic ) )
+      data_o[bit_cnt] <= rx_i;
+  end 
+end 
+
+always @( posedge clk_i or posedge !nreset_i )
+  if( !nreset_i )
+    state <= IDLE_S;
+  else
+    state <= next_state;
+
+always @( * )
+  begin
+
+  case( state )
+
+    IDLE_S:
+      begin
+        if( valid_i )
+          next_state = SEARCH_START_BIT_S;
+        else 
+          next_state = IDLE_S;
+      end
+
+    SEARCH_START_BIT_S:
+      begin
+        if ( !is_bod_tic ) begin
+          next_state  = SEARCH_START_BIT_S;
+        end
+        else begin
+          if( rx_i == 1'b0 ) 
+            next_state = RECIVE_DATA;
+          else 
+            next_state = SEARCH_START_BIT_S;
+        end
+      end
+
+    RECIVE_DATA:
+      begin
+        if( !is_second_tic ) begin
+          next_state  = RECIVE_DATA;
+        end
+        else begin
+          if ( bit_cnt < 7 )
+            next_state   = RECIVE_DATA; 
+          else 
+            next_state   = WAIT_STOP_BIT; 
+        end
+      end
+
+    WAIT_STOP_BIT: 
+    begin
+     if( !is_bod_tic )
+        next_state   = WAIT_STOP_BIT;
+      else 
+        next_state   = IDLE_S;
+    end
+  
+    default:
+      begin
+        next_state = IDLE_S;
+      end
+
+  endcase
+  end
+
+  assign ready_o = ( state == IDLE_S );
+
 endmodule
+      

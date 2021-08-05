@@ -129,6 +129,37 @@ integer   CLKS_PER_BIT    = 100_000_000_0 / 9600;
   #CLKS_PER_BIT;
   rx_i = 1'b1;
   #CLKS_PER_BIT;
+
+
+
+  
+    data = 8'b1111_0001;
+   // start bit
+  rx_i = 1'b0;
+  #CLKS_PER_BIT;
+
+    valid = 1'b1;
+
+  #CLKS_PER_BIT;
+      //data
+  rx_i = data[0];
+  #CLKS_PER_BIT;
+  rx_i = data[1];
+  #CLKS_PER_BIT;
+  rx_i = data[2];
+  #CLKS_PER_BIT;
+  rx_i = data[3];
+  #CLKS_PER_BIT;
+  rx_i = data[4];
+  #CLKS_PER_BIT;
+  rx_i = data[5];
+  #CLKS_PER_BIT;
+  rx_i = data[6];
+  #CLKS_PER_BIT;
+  rx_i = data[7];
+  #CLKS_PER_BIT;
+  rx_i = 1'b1;
+  #CLKS_PER_BIT;
   
  end 
  

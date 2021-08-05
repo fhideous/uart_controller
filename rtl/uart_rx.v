@@ -42,9 +42,9 @@ always @( posedge clk_i ) begin
     clk_counter   <= 'b0;
   else begin 
     if( state != IDLE_S ) begin
-      if( (clk_counter == ( CLKS_PER_BIT ) / 2 ) && state != RECIVE_DATA )
+      if( (clk_counter >= ( CLKS_PER_BIT ) / 2 ) && state != RECIVE_DATA )
         clk_counter <= 1'b0;
-      else if( ( clk_counter == CLKS_PER_BIT && state == RECIVE_DATA  ) 
+      else if( ( clk_counter >= CLKS_PER_BIT && state == RECIVE_DATA  ) 
                           || ( bit_cnt == 'd7 && is_bod_tic ) )
                                                                    
         clk_counter <= 1'b0; 
@@ -53,12 +53,14 @@ always @( posedge clk_i ) begin
       else
         clk_counter <= clk_counter + 1'b1;
     end 
+    else 
+        clk_counter <= 1'b0;
   end
 end  
 
 assign is_bod_tic = ( clk_counter ==  ( CLKS_PER_BIT - 1 ) && ( state == RECIVE_DATA ) )
-            || ( ( clk_counter ==  ( CLKS_PER_BIT - 1 ) / 2 ) && ( ( state == START_BIT_S ) 
-                                                                || ( state == WAIT_STOP_BIT ) ) ) ;
+            || ( ( clk_counter ==  ( CLKS_PER_BIT - 1 ) / 2 ) && ( ( state == START_BIT_S  ) || ( state == WAIT_STOP_BIT ) 
+                                                               ) ) ;
 
 always @( posedge clk_i ) begin
   if ( !nreset_i )
@@ -79,7 +81,7 @@ always @ ( posedge clk_i ) begin
   else begin 
     if ( state != RECIVE_DATA )
       bit_cnt <= 1'b0;
-    else if( ( bit_cnt == 'd7 )  && ( is_bod_tic ) )
+    else if( ( bit_cnt == 'd8 )  && ( is_bod_tic ) )
       bit_cnt <= 1'b0;
     else if( is_bod_tic )
       bit_cnt <= bit_cnt + 1'b1; 
@@ -90,7 +92,7 @@ always @ ( posedge clk_i ) begin
   if( !nreset_i )
     data_o <= 8'b0000_0000;
   else begin 
-    if ( ( state == RECIVE_DATA )  && ( is_bod_tic ) )
+    if ( ( state == RECIVE_DATA )  && ( is_bod_tic ) && bit_cnt < 'd8 )
       data_o[bit_cnt] <= rx_i;
   end 
 end 
@@ -123,7 +125,7 @@ always @( * )
           if( rx_i == 1'b0 ) 
             next_state = RECIVE_DATA;
           else 
-            next_state = START_BIT_S;
+            next_state = IDLE_S;
         end
       end
 
@@ -133,7 +135,7 @@ always @( * )
           next_state  = RECIVE_DATA;
         end
         else begin
-          if ( bit_cnt < 7 )
+          if ( bit_cnt < 8 )
             next_state   = RECIVE_DATA; 
           else 
             next_state   = WAIT_STOP_BIT; 

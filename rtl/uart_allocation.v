@@ -1,5 +1,7 @@
 
-module uart_allocation(
+module uart_allocation
+
+(
   input       clk,
   input       reset,
 
@@ -10,13 +12,13 @@ module uart_allocation(
 localparam  BIT_RATE        = 9600;
 localparam  CLK_HZ          = 100_000_000;
 
-localparam  CLKS_PER_10_BIT    = CLK_HZ / BIT_RATE * 10;
-localparam  COUNTER_LEN     = 1 + $clog2(CLKS_PER_10_BIT / 2);
+localparam  CLK_PER_10_BIT    = CLK_HZ / BIT_RATE * 10;
+localparam  COUNTER_LEN     = 1 + $clog2(CLK_PER_10_BIT / 2);
 
 reg  [COUNTER_LEN - 1:0]  clk_counter;
 
 wire                      cnt_tic;
-wire    [7:0]   data;
+wire  [7:0]     data;
 
 wire            ready;  
 wire            valid;  
@@ -26,15 +28,16 @@ reg   [7:0]     cnt_static;
 
 wire  [7:0]     data_rx;
 
-uart_tx inst_uart_tx
-(
-  .clk_i        (clk        ),
-  .nreset_i     (reset      ),
+uart_tx #(
+  .CLK_PER_BIT  (CLK_PER_10_BIT / 10    )
+) inst_uart_tx (
+  .clk_i        (clk                    ),
+  .nreset_i     (reset                  ),
 
-  .tx_data_i    (data_rx    ),
-  .ready_i      (ready      ),
-  .valid_o      (valid      ),
-  .tx_o         (tx_o       )
+  .tx_data_i    (data_rx                ),
+  .ready_i      (ready                  ),
+  .valid_o      (valid                  ),
+  .tx_o         (tx_o                   )
 );
 
 
@@ -44,26 +47,27 @@ always @( posedge clk ) begin
    else begin
     
 
-if ( ( clk_counter == CLKS_PER_10_BIT ) )
+if ( ( clk_counter == CLK_PER_10_BIT ) )
       clk_counter <= 1'b0; 
     else 
       clk_counter <= clk_counter + 1'b1;   
     end  
 end
 
-assign        cnt_tic = ( clk_counter == CLKS_PER_10_BIT  - 1);
+assign        cnt_tic = ( clk_counter == CLK_PER_10_BIT  - 1);
 
 
 
- uart_rx inst_uart_rx
- (
-   .clk_i        (clk        ),
-   .nreset_i     (reset      ),
+ uart_rx #( 
+    .CLK_PER_BIT (CLK_PER_10_BIT / 10   )
+) inst_uart_rx (
+   .clk_i        (clk                   ),
+   .nreset_i     (reset                 ),
 
-   .rx_i         (rx_i       ),
-   .valid_i      (valid      ),
-   .ready_o      (ready      ),
-   .data_o       (data_rx    )
+   .rx_i         (rx_i                  ),
+   .valid_i      (valid                 ),
+   .ready_o      (ready                 ),
+   .data_o       (data_rx               )
 
  );
 

@@ -1,4 +1,6 @@
-module uart_tx(
+module uart_tx #(
+   parameter CLK_PER_BIT = 1
+)(
 
   input           clk_i,
   input           nreset_i,
@@ -12,11 +14,7 @@ module uart_tx(
 
 );
 
-localparam  BIT_RATE        = 9600;
-localparam  CLK_HZ          = 100_000_000;
-
-localparam  CLKS_PER_BIT    = CLK_HZ / BIT_RATE;
-localparam  COUNTER_LEN     = 1 + $clog2(CLKS_PER_BIT);
+localparam  COUNTER_LEN     = 1 + $clog2(CLK_PER_BIT);
 
 reg  [COUNTER_LEN - 1:0]  clk_counter;
 
@@ -44,14 +42,14 @@ always @( posedge clk_i ) begin
   if ( !nreset_i )
     clk_counter   <= 'b0;
   else if ( is_transmitting ) begin
-    if ( ( clk_counter == CLKS_PER_BIT ) )
+    if ( ( clk_counter == CLK_PER_BIT ) )
       clk_counter <= 1'b0; 
     else 
       clk_counter <= clk_counter + 1'b1;
   end 
 end  
 
-assign        cnt_tic = ( clk_counter == CLKS_PER_BIT - 1);
+assign        cnt_tic = ( clk_counter == CLK_PER_BIT - 1);
 
 always @( posedge clk_i ) begin
   if ( ( !nreset_i ) || ( ready_i && valid_o ))

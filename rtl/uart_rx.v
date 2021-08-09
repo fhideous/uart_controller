@@ -1,4 +1,6 @@
-module uart_rx(
+module uart_rx #(
+   parameter CLK_PER_BIT = 1
+)(
 
   input             clk_i,
   input             nreset_i,
@@ -12,11 +14,7 @@ module uart_rx(
   
 );
 
-localparam    BIT_RATE        = 9600;
-localparam    CLK_HZ          = 100_000_000;
-
-localparam    CLKS_PER_BIT    = CLK_HZ / BIT_RATE;
-localparam    COUNTER_LEN     = 1 + $clog2(CLKS_PER_BIT / 2);
+localparam    COUNTER_LEN     = 1 + $clog2(CLK_PER_BIT / 2);
 
 reg   [COUNTER_LEN - 1:0]    clk_counter;
 
@@ -42,9 +40,9 @@ always @( posedge clk_i ) begin
     clk_counter   <= 'b0;
   else begin 
     if( state != IDLE_S ) begin
-      if( (clk_counter >= ( CLKS_PER_BIT ) / 2 ) && state != RECIVE_DATA )
+      if( (clk_counter >= ( CLK_PER_BIT ) / 2 ) && state != RECIVE_DATA )
         clk_counter <= 1'b0;
-      else if( ( clk_counter >= CLKS_PER_BIT && state == RECIVE_DATA  ) 
+      else if( ( clk_counter >= CLK_PER_BIT && state == RECIVE_DATA  ) 
                           || ( bit_cnt == 'd7 && is_bod_tic ) )
                                                                    
         clk_counter <= 1'b0; 
@@ -58,8 +56,8 @@ always @( posedge clk_i ) begin
   end
 end  
 
-assign is_bod_tic = ( clk_counter ==  ( CLKS_PER_BIT - 1 ) && ( state == RECIVE_DATA ) )
-            || ( ( clk_counter ==  ( CLKS_PER_BIT - 1 ) / 2 ) && ( ( state == START_BIT_S  ) || ( state == WAIT_STOP_BIT ) 
+assign is_bod_tic = ( clk_counter ==  ( CLK_PER_BIT - 1 ) && ( state == RECIVE_DATA ) )
+            || ( ( clk_counter ==  ( CLK_PER_BIT - 1 ) / 2 ) && ( ( state == START_BIT_S  ) || ( state == WAIT_STOP_BIT ) 
                                                                ) ) ;
 
 always @( posedge clk_i ) begin

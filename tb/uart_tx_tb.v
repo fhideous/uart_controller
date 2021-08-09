@@ -14,19 +14,26 @@ module uart_tx_tb;
     
     localparam CLK_SEMIPERIOD = 5;
     
-    uart_tx uut
-    (
-            .clk_i(clk_i),
-            .nreset_i(nreset_i),
 
-            .tx_data_i(tx_data_i),
-                        
-            .ready_i(ready),
-            .valid_o(valid),
-            .tx_o(tx_o)
-    );
+localparam  BIT_RATE        = 9600;
+localparam  CLK_HZ          = 100_000_000;
+
+localparam  CLK_PER_BIT    = CLK_HZ / BIT_RATE;
+
+   uart_tx  #(
+      .CLK_PER_BIT  (CLK_PER_BIT ) 
+)uut(
+     .clk_i(clk_i),
+     .nreset_i(nreset_i),
+
+    .tx_data_i(tx_data_i),
+                      
+    .ready_i(ready),
+    .valid_o(valid),
+    .tx_o(tx_o)
+);
     
-    integer i = 0;
+   integer i = 0;
     
     reg flag_start = 0;
     reg [7:0] data = 0;

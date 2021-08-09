@@ -14,8 +14,14 @@ module uart_rx_tb;
 
   localparam CLK_SEMIPERIOD = 5;
 
-  uart_rx uut
-  (
+localparam  BIT_RATE        = 9600;
+localparam  CLK_HZ          = 100_000_000;
+
+localparam  CLK_PER_BIT    = CLK_HZ / BIT_RATE;
+
+  uart_rx  #(
+    .CLK_PER_BIT  (CLK_PER_BIT ) 
+)uut(
       .clk_i      (clk_i        ),
       .nreset_i   (nreset_i     ),
   
@@ -36,7 +42,7 @@ module uart_rx_tb;
 
 reg  [7:0]  data;
 
-integer   CLKS_PER_BIT    = 100_000_000_0 / 9600;
+ integer   CLKS_PER_BIT    = 100_000_000_0 / 9600;
  
  initial begin 
 

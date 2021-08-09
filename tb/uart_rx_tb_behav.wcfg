@@ -3,76 +3,65 @@
    <wave_state>
    </wave_state>
    <db_ref_list>
-      <db_ref path="uart_rx_tb_behav.wdb" id="1">
+      <db_ref path="uart_alloc_tb_behav.wdb" id="1">
          <top_modules>
             <top_module name="glbl" />
-            <top_module name="uart_rx_tb" />
+            <top_module name="uart_alloc_tb" />
          </top_modules>
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="1282551667fs"></ZoomStartTime>
-      <ZoomEndTime time="3180551668fs"></ZoomEndTime>
-      <Cursor1Time time="1598885000fs"></Cursor1Time>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="3560000001fs"></ZoomEndTime>
+      <Cursor1Time time="1046705000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="129"></NameColumnWidth>
+      <NameColumnWidth column_width="124"></NameColumnWidth>
       <ValueColumnWidth column_width="72"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="13" />
-   <wvobject fp_name="/uart_rx_tb/clk_i" type="logic">
-      <obj_property name="ElementShortName">clk_i</obj_property>
-      <obj_property name="ObjectShortName">clk_i</obj_property>
+   <WVObjectSize size="10" />
+   <wvobject fp_name="/uart_alloc_tb/uut/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
    </wvobject>
-   <wvobject fp_name="/uart_rx_tb/nreset_i" type="logic">
-      <obj_property name="ElementShortName">nreset_i</obj_property>
-      <obj_property name="ObjectShortName">nreset_i</obj_property>
+   <wvobject fp_name="/uart_alloc_tb/uut/reset" type="logic">
+      <obj_property name="ElementShortName">reset</obj_property>
+      <obj_property name="ObjectShortName">reset</obj_property>
    </wvobject>
-   <wvobject fp_name="/uart_rx_tb/rx_i" type="logic">
+   <wvobject fp_name="/uart_alloc_tb/uut/rx_i" type="logic">
       <obj_property name="ElementShortName">rx_i</obj_property>
       <obj_property name="ObjectShortName">rx_i</obj_property>
    </wvobject>
-   <wvobject fp_name="/uart_rx_tb/uut/valid_i" type="logic">
-      <obj_property name="ElementShortName">valid_i</obj_property>
-      <obj_property name="ObjectShortName">valid_i</obj_property>
+   <wvobject fp_name="/uart_alloc_tb/uut/tx_o" type="logic">
+      <obj_property name="ElementShortName">tx_o</obj_property>
+      <obj_property name="ObjectShortName">tx_o</obj_property>
    </wvobject>
-   <wvobject fp_name="/uart_rx_tb/uut/ready_o" type="logic">
-      <obj_property name="ElementShortName">ready_o</obj_property>
-      <obj_property name="ObjectShortName">ready_o</obj_property>
-   </wvobject>
-   <wvobject fp_name="/uart_rx_tb/uut/bit_cnt" type="array">
-      <obj_property name="ElementShortName">bit_cnt[3:0]</obj_property>
-      <obj_property name="ObjectShortName">bit_cnt[3:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/uart_rx_tb/uut/second_bod_tic" type="logic">
-      <obj_property name="ElementShortName">second_bod_tic</obj_property>
-      <obj_property name="ObjectShortName">second_bod_tic</obj_property>
-   </wvobject>
-   <wvobject fp_name="/uart_rx_tb/uut/is_second_tic" type="logic">
-      <obj_property name="ElementShortName">is_second_tic</obj_property>
-      <obj_property name="ObjectShortName">is_second_tic</obj_property>
-   </wvobject>
-   <wvobject fp_name="/uart_rx_tb/uut/state" type="array">
+   <wvobject fp_name="/uart_alloc_tb/uut/inst_uart_rx/state" type="array">
       <obj_property name="ElementShortName">state[1:0]</obj_property>
       <obj_property name="ObjectShortName">state[1:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/uart_rx_tb/uut/next_state" type="array">
-      <obj_property name="ElementShortName">next_state[1:0]</obj_property>
-      <obj_property name="ObjectShortName">next_state[1:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/uart_rx_tb/uut/data_o" type="array">
+   <wvobject fp_name="/uart_alloc_tb/uut/inst_uart_rx/data_o" type="array">
       <obj_property name="ElementShortName">data_o[7:0]</obj_property>
       <obj_property name="ObjectShortName">data_o[7:0]</obj_property>
-      <obj_property name="isExpanded"></obj_property>
    </wvobject>
-   <wvobject fp_name="/uart_rx_tb/CLKS_PER_BIT" type="array">
-      <obj_property name="ElementShortName">CLKS_PER_BIT[31:0]</obj_property>
-      <obj_property name="ObjectShortName">CLKS_PER_BIT[31:0]</obj_property>
-      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   <wvobject fp_name="/uart_alloc_tb/uut/inst_uart_rx/valid_i" type="logic">
+      <obj_property name="ElementShortName">valid_i</obj_property>
+      <obj_property name="ObjectShortName">valid_i</obj_property>
    </wvobject>
-   <wvobject fp_name="/uart_rx_tb/uut/clk_counter" type="array">
-      <obj_property name="ElementShortName">clk_counter[13:0]</obj_property>
-      <obj_property name="ObjectShortName">clk_counter[13:0]</obj_property>
-      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   <wvobject fp_name="/uart_alloc_tb/uut/inst_uart_rx/ready_o" type="logic">
+      <obj_property name="ElementShortName">ready_o</obj_property>
+      <obj_property name="ObjectShortName">ready_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/uart_alloc_tb/uut/inst_uart_tx/is_transmitting" type="logic">
+      <obj_property name="ElementShortName">is_transmitting</obj_property>
+      <obj_property name="ObjectShortName">is_transmitting</obj_property>
+      <obj_property name="CustomSignalColor">#0000FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/uart_alloc_tb/uut/tx_o" type="logic">
+      <obj_property name="ElementShortName">tx_o</obj_property>
+      <obj_property name="ObjectShortName">tx_o</obj_property>
+      <obj_property name="CustomSignalColor">#0000FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
 </wave_config>

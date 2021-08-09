@@ -54,9 +54,6 @@ if ( ( clk_counter == CLK_PER_10_BIT ) )
     end  
 end
 
-assign        cnt_tic = ( clk_counter == CLK_PER_10_BIT  - 1);
-
-
 
  uart_rx #( 
     .CLK_PER_BIT (CLK_PER_10_BIT / 10   )
@@ -71,6 +68,7 @@ assign        cnt_tic = ( clk_counter == CLK_PER_10_BIT  - 1);
 
  );
 
+assign        cnt_tic = ( clk_counter == CLK_PER_10_BIT  - 1);
 
 always @( posedge clk ) begin
     if (!reset)

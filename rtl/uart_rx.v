@@ -30,19 +30,19 @@ reg   [1:0]                  next_state;
 reg                          state_1_to_2;
 wire                         clk_counter_rm;
 
-localparam    IDLE_S              = 2'b00;
-localparam    START_BIT_S         = 2'b01;  
-localparam    RECIVE_DATA         = 2'b10;
-localparam    WAIT_STOP_BIT       = 2'b11;
+localparam    IDLE_S                 = 2'b00;
+localparam    START_BIT_S            = 2'b01;  
+localparam    RECIVE_DATA_S          = 2'b10;
+localparam    WAIT_STOP_BIT_S        = 2'b11;
 
 always @( posedge clk_i ) begin 
   if( !nreset_i )
     clk_counter   <= 'b0;
   else begin 
     if( state != IDLE_S ) begin
-      if( (clk_counter >= ( CLK_PER_BIT ) / 2 ) && state != RECIVE_DATA )
+      if( (clk_counter >= ( CLK_PER_BIT ) / 2 ) && state != RECIVE_DATA_S )
         clk_counter <= 1'b0;
-      else if( ( clk_counter >= CLK_PER_BIT && state == RECIVE_DATA  ) 
+      else if( ( clk_counter >= CLK_PER_BIT && state == RECIVE_DATA_S  ) 
                           || ( bit_cnt == 'd7 && is_bod_tic ) )
                                                                    
         clk_counter <= 1'b0; 
@@ -56,8 +56,8 @@ always @( posedge clk_i ) begin
   end
 end  
 
-assign is_bod_tic = ( clk_counter ==  ( CLK_PER_BIT - 1 ) && ( state == RECIVE_DATA ) )
-            || ( ( clk_counter ==  ( CLK_PER_BIT - 1 ) / 2 ) && ( ( state == START_BIT_S  ) || ( state == WAIT_STOP_BIT ) 
+assign is_bod_tic = ( clk_counter ==  ( CLK_PER_BIT - 1 ) && ( state == RECIVE_DATA_S ) )
+            || ( ( clk_counter ==  ( CLK_PER_BIT - 1 ) / 2 ) && ( ( state == START_BIT_S  ) || ( state == WAIT_STOP_BIT_S ) 
                                                                ) ) ;
 
 always @( posedge clk_i ) begin
@@ -73,11 +73,11 @@ end
 
 assign clk_counter_rm = state_1_to_2;
 
-always @ ( posedge clk_i ) begin
+always @( posedge clk_i ) begin
   if( !nreset_i )
     bit_cnt <= 1'b0;
   else begin 
-    if ( state != RECIVE_DATA )
+    if ( state != RECIVE_DATA_S )
       bit_cnt <= 1'b0;
     else if( ( bit_cnt == 'd8 )  && ( is_bod_tic ) )
       bit_cnt <= 1'b0;
@@ -86,11 +86,11 @@ always @ ( posedge clk_i ) begin
   end
 end
 
-always @ ( posedge clk_i ) begin
+always @( posedge clk_i ) begin
   if( !nreset_i )
     data_o <= 8'b0000_0000;
   else begin 
-    if ( ( state == RECIVE_DATA )  && ( is_bod_tic ) && bit_cnt < 'd8 )
+    if ( ( state == RECIVE_DATA_S )  && ( is_bod_tic ) && bit_cnt < 'd8 )
       data_o[bit_cnt] <= rx_i;
   end 
 end 
@@ -108,7 +108,7 @@ always @( * )
 
     IDLE_S:
       begin
-        if( valid_i && rx_i == 1'b0 )
+        if( rx_i == 1'b0 )
           next_state = START_BIT_S;
         else 
           next_state = IDLE_S;
@@ -121,29 +121,29 @@ always @( * )
         end
         else begin
           if( rx_i == 1'b0 ) 
-            next_state = RECIVE_DATA;
+            next_state = RECIVE_DATA_S;
           else 
             next_state = IDLE_S;
         end
       end
 
-    RECIVE_DATA:
+    RECIVE_DATA_S:
       begin
         if( !is_bod_tic ) begin
-          next_state  = RECIVE_DATA;
+          next_state  = RECIVE_DATA_S;
         end
         else begin
           if ( bit_cnt < 8 )
-            next_state   = RECIVE_DATA; 
+            next_state   = RECIVE_DATA_S; 
           else 
-            next_state   = WAIT_STOP_BIT; 
+            next_state   = WAIT_STOP_BIT_S; 
         end
       end
 
-    WAIT_STOP_BIT: 
+    WAIT_STOP_BIT_S: 
     begin
      if( !is_bod_tic )
-        next_state   = WAIT_STOP_BIT;
+        next_state   = WAIT_STOP_BIT_S;
       else 
         next_state   = IDLE_S;
     end
@@ -156,7 +156,20 @@ always @( * )
   endcase
   end
 
-  assign ready_o = ( state == IDLE_S );
+  reg                       reg_ready;
+
+  always @( posedge clk_i) begin
+    if ( !nreset_i ) 
+      reg_ready <= 1'b0;
+    else begin
+      if ( ( state == WAIT_STOP_BIT_S ) && ( is_bod_tic) )
+        reg_ready <= 1'b1;
+      else if ( state == START_BIT_S )
+        reg_ready <= 1'b0;
+    end
+  end
+
+  assign ready_o = reg_ready;
 
 endmodule
       

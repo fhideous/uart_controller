@@ -1,16 +1,14 @@
 
-module uart_allocation
-
-(
+module uart_allocation #(
+  parameter BIT_RATE = 9600,
+  parameter CLK_HZ   = 100_000_000
+)(
   input       clk,
   input       reset,
 
   input       rx_i,
   output      tx_o
 );
-
-localparam  BIT_RATE        = 9600;
-localparam  CLK_HZ          = 100_000_000;
 
 localparam  CLK_PER_10_BIT  = CLK_HZ / BIT_RATE * 10;
 localparam  COUNTER_LEN     = 1 + $clog2(CLK_PER_10_BIT / 2);

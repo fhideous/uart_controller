@@ -108,7 +108,7 @@ always @( * )
 
     IDLE_S:
       begin
-        if( rx_i == 1'b0 )
+        if( valid_i && rx_i == 1'b0 )
           next_state = START_BIT_S;
         else 
           next_state = IDLE_S;

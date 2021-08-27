@@ -27,25 +27,11 @@ wire                      cnt_tic;
 
 assign    valid_o   =   ( nreset_i ) && ( is_transmitting ) ;
 
-
-reg                       is_new_message;
-
-always @( posedge clk_i ) begin
-  if ( !nreset_i ) 
-    is_new_message <= 'b0;
-  else begin  
-    if ( !ready_i )
-      is_new_message <= 'b1;
-    else 
-      is_new_message <= 'b0; 
-  end
-end
-
 always @( posedge clk_i ) begin 
   if ( !nreset_i ) begin
       is_transmitting    <=  1'b0;
       reg_data           <=  10'b1_1111_1111_0;
-  end else if ( !is_transmitting && ready_i && is_new_message) begin 
+  end else if ( !is_transmitting && ready_i) begin 
       is_transmitting    <= 'b1;
       reg_data           <=  { 1'b1, tx_data_i, 1'b0};
   end else if ( n_bit == 'd10 && cnt_tic  )
